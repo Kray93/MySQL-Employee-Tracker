@@ -53,7 +53,8 @@ function init() {
                             break;
                     }
                 });
-            case "VIEW all departments, roles, roles by department, all employees, employees  by manager or department buggets":
+                break;
+            case "VIEW all departments, roles, roles by department, all employees, employees by manager or department buggets":
                 inquirer.prompt([
                     {
                         type: "list",
@@ -86,6 +87,7 @@ function init() {
                             break;
                     }
                 });
+                break;
             case "UPDATE employee manager or employee role":
                 inquirer.prompt([
                     {
@@ -107,6 +109,7 @@ function init() {
                             break;
                     }
                 });
+                break;
             case "DELETE employee, role or department":
                 inquirer.prompt([
                     {
@@ -131,6 +134,7 @@ function init() {
                             break;
                     }
                 });
+                break;
             case "QUIT":
                 console.log("Till next time!");
                 connection.end();
@@ -214,13 +218,13 @@ function addEmp() {
                     };
                 };
                 if (answer.manager_conf = true) {
-                    connection.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (${answer.first_name}, ${answer.last_name}, ${roleID}, ${managerID})`, (err, res) => {
+                    connection.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ("${answer.first_name}", "${answer.last_name}", "${roleID}", "${managerID}")`, (err, res) => {
                         if (err) throw err;
                         console.log("Employee added!");
                         init();
                     });
                 } else {
-                    connection.query(`INSERT INTO employee (first_name, last_name, role_id) VALUES (${answer.first_name}, ${answer.last_name}, ${roleID})`, (err, res) => {
+                    connection.query(`INSERT INTO employee (first_name, last_name, role_id) VALUES ("${answer.first_name}", "${answer.last_name}", "${roleID}")`, (err, res) => {
                         if (err) throw err;
                         console.log("Employee added!");
                         init();
@@ -266,7 +270,7 @@ function addRole() {
                         deptID = deptArr[i].id;
                     };
                 };
-                connection.query(`INSERT INTO role (title, salary, department_id) VALUES (${answer.roleName}, ${answer.salary}, ${deptID})`, (err, res) => {
+                connection.query(`INSERT INTO role (title, salary, department_id) VALUES ("${answer.roleName}", "${answer.salary}", "${deptID}")`, (err, res) => {
                     if (err) throw err;
                     console.log("Role added!");
                     init();
@@ -282,7 +286,7 @@ function addDept() {
             name: "deptName"
         }
     ]).then((answer) => {
-        connection.query(`INSERT INTO department (name) VALUES (${answer.deptName})`, (err, res) => {
+        connection.query(`INSERT INTO department (name) VALUE ("${answer.deptName}")`, (err, res) => {
             if (err) throw err;
             console.log(`Department "${answer.deptName}" added!`);
             init();
@@ -344,7 +348,7 @@ function viewRolesByDept() {
                         deptID = res[j].id;
                     };
                 };
-                connection.query(`SELECT title, salary FROM role WHERE department_id = ${deptID}`, (err, data) => {
+                connection.query(`SELECT title, salary FROM role WHERE department_id = "${deptID}"`, (err, data) => {
                     console.table(data);
                     init();
                 });
@@ -376,7 +380,7 @@ function viewEmpByMgr() {
                         managerID = data[k].id;
                     };
                 };
-                connection.query(`SELECT first_name AS "First Name", last_name AS "Last Name", title AS "Role", department.name AS "Department", salary AS "Salary" FROM employee JOIN role ON role_id = role.id JOIN department ON role.department_id = department.id WHERE employee.manager_id = ${managerID}`, (err, res) => {
+                connection.query(`SELECT first_name AS "First Name", last_name AS "Last Name", title AS "Role", department.name AS "Department", salary AS "Salary" FROM employee JOIN role ON role_id = role.id JOIN department ON role.department_id = department.id WHERE employee.manager_id = "${managerID}"`, (err, res) => {
                     if (err) throw err;
                     console.table(res);
                     init();
@@ -449,7 +453,7 @@ function updateMgr() {
                     console.log("Employee and manager cannot be the same!\nPlease Try Again...");
                     updateMgr();
                 } else {
-                    connection.query(`UPDATE employee SET manager_id = ${managerID} WHERE CONCAT(first_name, " ", last_name) = ${answer.empSelection}`, (err, res) => {
+                    connection.query(`UPDATE employee SET manager_id = "${managerID}" WHERE CONCAT(first_name, " ", last_name) = "${answer.empSelection}"`, (err, res) => {
                         if (err) throw err;
                         console.log("Employee's manager updated.");
                         init();
@@ -497,7 +501,7 @@ function updateEmpRole() {
                          };
                      };
                      console.log("new role id: " + roleID);
-                     connection.query(`UPDATE employee SET role_id = ${roleID} WHERE CONCAT(first_name, " ", last_name) = ${answer.empSelection}`, (err, res) => {
+                     connection.query(`UPDATE employee SET role_id = "${roleID}" WHERE CONCAT(first_name, " ", last_name) = "${answer.empSelection}"`, (err, res) => {
                          if (err) throw err;
                          console.log("Employee roll updated");
                          init();
@@ -531,16 +535,16 @@ function deleteEmp() {
             }
         ]).then((answer) => {
                 if(mgrList.includes(answer.empSelection)){
-                    console.log(`\n${answer.empSelection} is a Manager and cannot be deleted\nNOTE: To delete a manager, all employees under that manager must be reassigned\n(Select 'Update Employee Manager' on Main Menu\n\n`);
+                    console.log(`\n"${answer.empSelection}" is a Manager and cannot be deleted\nNOTE: To delete a manager, all employees under that manager must be reassigned\n(Select 'Update Employee Manager' on Main Menu\n\n`);
                     init();
                 } else {
                     let empID;
-                    for (l in data){
-                        if (answer.empSelection === `${data[l].first_name} ${data[l].last_name}`){
-                            empID = data[l].id;
+                    for (l in empData){
+                        if (answer.empSelection === `${empData[l].first_name} ${empData[l].last_name}`){
+                            empID = empData[l].id;
                         };
                     };
-                    connection.query(`DELETE FROM employee WHERE id = ${empID}`, (err, res) => {
+                    connection.query(`DELETE FROM employee WHERE id = "${empID}"`, (err, res) => {
                         if (err) throw err;
                         console.log("Employee deleted.")
                         init();
@@ -570,10 +574,10 @@ function deleteRole() {
             }
         ]).then((answer) => {
             if(rolesArr.includes(answer.roleSelection)){
-                console.log(`\n\nThe role of ${answer.roleSelection} is filled and cannot be deleted!\nNOTE: To delete a role All employees in that role must be reassigned\nSelect "Update Employee Role" on Main Menu\n`);
+                console.log(`\n\nThe role of "${answer.roleSelection}" is filled and cannot be deleted!\nNOTE: To delete a role All employees in that role must be reassigned\nSelect "Update Employee Role" on Main Menu\n`);
                 init();
             } else {
-                connection.query(`DELETE FROM role WHERE title = ${answer.roleSelection}`, (err, res) => {
+                connection.query(`DELETE FROM role WHERE title = "${answer.roleSelection}"`, (err, res) => {
                     if (err) throw err;
                     console.log("Role deleted.");
                     init();
@@ -601,10 +605,10 @@ function deleteDept() {
             }
         ]).then((answer) => {
             if(fullDept.includes(answer.deptSelection)){
-                console.log(`\nThe ${answer.deptSelection} department has listed Roles on file and cannot be deleted!\nNOTE: To delete a department, first delete all roles in that department\n(Select 'Delete Role' in Main Menu)\n`);
+                console.log(`\nThe "${answer.deptSelection}" department has listed Roles on file and cannot be deleted!\nNOTE: To delete a department, first delete all roles in that department\n(Select 'Delete Role' in Main Menu)\n`);
                 init();
             } else {
-                connection.query(`DELETE FROM department WHERE name = ${answer.deptSelection}`, (err, res) => {
+                connection.query(`DELETE FROM department WHERE name = "${answer.deptSelection}"`, (err, res) => {
                     if (err) throw err;
                     console.log("Department deleted.");
                     init();
